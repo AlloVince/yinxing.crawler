@@ -2,7 +2,7 @@ language: python
 node_js:
 - 3.6
 install:
-- wget https://github.com/AlloVince/EvaScrapy/archive/master.tar.gz -O master.tar.gz && tar xvfk  master.tar.gz --strip 1 --ignore-command-error && rm master.tar.gz
+- wget https://github.com/AlloVince/EvaScrapy/archive/master.tar.gz -O master.tar.gz && tar xvf master.tar.gz --strip 1 && rm master.tar.gz
 - pip install
 script:
 - pytest
