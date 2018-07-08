@@ -10,7 +10,8 @@ jobs:
   include:
     - stage: docker release
       python: '3.6'
-      if: tag IS present
+      if: branch IS master
+#      if: tag IS present
       script:
         - docker build -t allovince/yinxing.crawler .
         - docker tag allovince/yinxing.crawler allovince/yinxing.crawler:$TRAVIS_TAG
