@@ -1,1 +1,5 @@
-.idea
+*
+!evascrapy/spiders/*.py
+!README.md
+!Dockerfile
+!.travis.yml
