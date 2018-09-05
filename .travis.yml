@@ -1,6 +1,8 @@
 language: python
 node_js:
 - 3.6
+script:
+- echo "DO NOTHING"
 jobs:
   include:
     - stage: docker release
