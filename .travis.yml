@@ -7,7 +7,7 @@ jobs:
   include:
     - stage: docker staging
       python: '3.6'
-      if: branch IS master
+      if: branch = master
       script:
         - docker build -t allovince/yinxing.crawler .
         - docker tag allovince/yinxing.crawler allovince/yinxing.crawler:staging
