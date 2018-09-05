@@ -1,16 +1,19 @@
 language: python
 node_js:
 - 3.6
-install:
-- wget https://github.com/AlloVince/EvaScrapy/archive/master.tar.gz -O master.tar.gz && tar xvf master.tar.gz --strip 1 && rm master.tar.gz
-- pip install
-script:
-- pytest
 jobs:
   include:
     - stage: docker release
       python: '3.6'
-#      if: branch IS master
+      if: branch IS master
+      script:
+        - docker build -t allovince/yinxing.crawler .
+        - docker tag allovince/yinxing.crawler allovince/yinxing.crawler:staging
+        - docker images
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+        - docker push allovince/yinxing.crawler:staging
+    - stage: docker release
+      python: '3.6'
       if: tag IS present
       script:
         - docker build -t allovince/yinxing.crawler .
