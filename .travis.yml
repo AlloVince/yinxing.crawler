@@ -5,6 +5,15 @@ script:
 - echo "DO NOTHING"
 jobs:
   include:
+    - stage: docker staging
+      python: '3.6'
+      if: branch IS master
+      script:
+        - docker build -t allovince/yinxing.crawler .
+        - docker tag allovince/yinxing.crawler allovince/yinxing.crawler:staging
+        - docker images
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+        - docker push allovince/yinxing.crawler:staging;
     - stage: docker release
       python: '3.6'
       if: tag IS present
