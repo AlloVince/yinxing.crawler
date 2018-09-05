@@ -5,7 +5,7 @@ script:
 - echo "DO NOTHING"
 jobs:
   include:
-    - stage: docker release
+    - stage: docker staging release
       python: '3.6'
       if: branch IS master
       script:
