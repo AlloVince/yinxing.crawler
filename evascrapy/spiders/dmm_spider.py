@@ -14,10 +14,11 @@ class DmmSpider(BaseSpider):
     ]
 
     deep_start_url = [
-        "http://www.dmm.co.jp/digital/videoa/-/genre/=/display=syllabary/sort=ranking/",
-        "http://www.dmm.co.jp/digital/videoa/-/maker/",
-        "http://www.dmm.co.jp/digital/videoa/-/series/=/keyword=a/sort=ruby/",
-        "http://www.dmm.co.jp/digital/videoa/-/actress/=/keyword=a/",
+        'http://www.dmm.co.jp/digital/videoa/-/list/=/sort=date/',
+        'http://www.dmm.co.jp/digital/videoa/-/genre/=/display=syllabary/sort=ranking/',
+        'http://www.dmm.co.jp/digital/videoa/-/maker/',
+        'http://www.dmm.co.jp/digital/videoa/-/series/=/keyword=a/sort=ruby/',
+        'http://www.dmm.co.jp/digital/videoa/-/actress/=/keyword=a/',
     ]
 
     rules = (
@@ -41,6 +42,7 @@ class DmmSpider(BaseSpider):
     )
 
     def _build_request(self, rule, link):
+        # ignore url query for dmm spider
         r = Request(url=link.url.split('?')[0], callback=self._response_downloaded)
         r.meta.update(rule=rule, link_text=link.text)
         return r
