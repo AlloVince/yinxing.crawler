@@ -2,6 +2,7 @@
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from evascrapy.base_spider import BaseSpider
+from scrapy.http import Request
 
 
 class DmmSpider(BaseSpider):
@@ -39,4 +40,7 @@ class DmmSpider(BaseSpider):
              callback='handle_item'),
     )
 
-
+    def _build_request(self, rule, link):
+        r = Request(url=link.url.split('?')[0], callback=self._response_downloaded)
+        r.meta.update(rule=rule, link_text=link.text)
+        return r
