@@ -1,6 +1,6 @@
 language: python
-node_js:
-- 3.6
+python: 3.6
+node_js: 10
 script:
 - echo "DO NOTHING"
 jobs:
@@ -9,6 +9,8 @@ jobs:
       python: '3.6'
       if: branch = master
       script:
+        - npm install
+        - npm run travis-deploy-once "npm run semantic-release"
         - docker build -t allovince/yinxing.crawler .
         - docker tag allovince/yinxing.crawler allovince/yinxing.crawler:staging
         - docker images
