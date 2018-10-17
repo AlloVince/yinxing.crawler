@@ -16,7 +16,7 @@ class TokyotoshoSpider(BaseSpider):
         'https://www.tokyotosho.info/'
     ]
 
-    deep_start_url = [
+    deep_start_urls = [
         'https://www.tokyotosho.info/'
     ]
 

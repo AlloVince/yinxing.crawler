@@ -13,7 +13,7 @@ class DmmSpider(BaseSpider):
         'http://www.dmm.co.jp/digital/videoa/-/list/=/sort=date/'
     ]
 
-    deep_start_url = [
+    deep_start_urls = [
         'http://www.dmm.co.jp/digital/videoa/-/list/=/sort=date/',
         'http://www.dmm.co.jp/digital/videoa/-/genre/=/display=syllabary/sort=ranking/',
         'http://www.dmm.co.jp/digital/videoa/-/maker/',
