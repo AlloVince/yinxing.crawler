@@ -1,6 +1,7 @@
 *
-!evascrapy/spiders/dmm_spider.py
-!evascrapy/spiders/tokyotosho_spider.py
+!evascrapy/
+!evascrapy/spiders/
+!evascrapy/spiders/*.py
 !README.md
 !Dockerfile
 !.travis.yml
