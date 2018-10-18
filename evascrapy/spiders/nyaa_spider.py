@@ -3,9 +3,8 @@ import math
 import time
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
-from scrapy.http import Response, Request
-from scrapy.utils.url import parse_url
 from evascrapy.base_spider import BaseSpider
+from scrapy.http import Response, Request
 from evascrapy.items import TorrentFileItem
 
 
@@ -14,35 +13,40 @@ class DownloadRequest(Request):
         return "<%s %s meta %s>" % (self.method, self.url, self.meta)
 
 
-class TokyotoshoSpider(BaseSpider):
+class NyaaSpider(BaseSpider):
     version = '1.0.0'
-    name = 'tokyotosho'
-    allowed_domains = ['www.tokyotosho.info']
+    name = 'nyaa'
+    allowed_domains = ['sukebei.nyaa.si', 'nyaa.si']
     start_urls = [
-        'https://www.tokyotosho.info/'
+        'https://sukebei.nyaa.si/',
+        'https://nyaa.si/'
     ]
 
     deep_start_urls = [
-        'https://www.tokyotosho.info/'
+        'https://sukebei.nyaa.si/',
+        'https://nyaa.si/'
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='www.tokyotosho.info/\?page=([0-9]|10)&cat=0', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow='sukebei.nyaa.si/\?p=([0-9]|10)', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow='nyaa.si/\?p=([0-9]|10)', ), follow=True, callback='handle_list'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='www.tokyotosho.info/\?', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow='sukebei.nyaa.si/\?', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow='nyaa.si/\?', ), follow=True, callback='handle_list'),
     )
 
     def handle_list(self, response: Response) -> Request:
-        torrents = response.css('td.desc-top a[type="application/x-bittorrent"]::attr(href)').extract()
+        torrents = response.css('td a[href$=torrent]::attr(href)').extract()
         if len(torrents) < 1:
             return
         for torrent in torrents:
-            url = parse_url(torrent)
-            if url.netloc == 'www.nyaa.se':
-                continue
-            request = DownloadRequest(url=torrent, callback=self.handle_item, dont_filter=True)
+            request = DownloadRequest(
+                url=response.urljoin(torrent),  # relative url to absolute
+                callback=self.handle_item,
+                dont_filter=True
+            )
             request.meta['from_url'] = response.url
             yield request
 
