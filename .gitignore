@@ -1,7 +1,7 @@
 *
 !evascrapy/
 !evascrapy/spiders/
-!evascrapy/spiders/*.py
+!evascrapy/spiders/*_spider.py
 !README.md
 !Dockerfile
 !.travis.yml
