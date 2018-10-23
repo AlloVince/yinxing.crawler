@@ -31,12 +31,12 @@ class BailuSpider(BaseSpider):
 
     rules = (
         Rule(LinkExtractor(allow='forum-(2|36|37|38|55|76|77)-(1|2|3|4|5|6|7|8|9)\.html', ), follow=True),
-        Rule(LinkExtractor(allow='thread[-\w]+\.html', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow='thread-\d+-1-1.html', ), follow=True, callback='handle_page'),
     )
 
     deep_rules = (
         Rule(LinkExtractor(allow='forum-(2|36|37|38|55|76|77)-[-\w]+\.html', ), follow=True),
-        Rule(LinkExtractor(allow='thread[-\w]+\.html', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow='thread-\d+-1-1.html', ), follow=True, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> TorrentFileItem:

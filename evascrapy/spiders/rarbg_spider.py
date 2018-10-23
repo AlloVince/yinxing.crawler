@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
 import time
-import os
-import re
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.http import Response, Request
@@ -15,44 +13,35 @@ class DownloadRequest(Request):
         return "<%s %s meta %s>" % (self.method, self.url, self.meta)
 
 
-domain = os.environ.get('DOMAIN') or 'thzu.net'
-
-
-class ThzSpider(BaseSpider):
+class RarbgSpider(BaseSpider):
     version = '1.0.0'
-    name = 'thz'
-    allowed_domains = [domain]
+    name = 'rarbg'
+    allowed_domains = ['rarbgprx.org']
     start_urls = [
-        'http://%s' % domain,
+        'https://rarbgprx.org/torrents.php',
     ]
 
     deep_start_urls = [
-        'http://%s' % domain,
+        'https://rarbgprx.org/torrents.php',
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='forum-(181|220|182|69|203|177)-(1|2|3|4|5|6|7|8|9)\.html', ), follow=True),
-        Rule(LinkExtractor(allow='thread-\d+-1-1.html', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow='torrents.php\?category', ), follow=True),
+        Rule(LinkExtractor(allow='torrent/\w+', ), follow=True, callback='handle_page'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='forum-(181|220|182|69|203|177)-\d+\.html', ), follow=True),
-        Rule(LinkExtractor(allow='thread-\d+-1-1.html', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow='torrents.php\?category', ), follow=True),
+        Rule(LinkExtractor(allow='torrent/\w+', ), follow=True, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> TorrentFileItem:
-        page_links = response.css('a[href^="imc_attachad-ad.html"]:contains("torrent")::attr(href)').extract()
-        if len(page_links) < 1:
+        torrents = response.css('a[href^="/download.php?id="]::attr(href)').extract()
+        if len(torrents) < 1:
             return
-
-        regex = re.compile(r'aid=(\w+)')
-        for page_link in page_links:
-            match = regex.search(page_link)
-            if not match:
-                continue
-            id = match.group(1)
+        for torrent in torrents:
             request = DownloadRequest(
-                url=response.urljoin('forum.php?mod=attachment&aid=%s' % id),  # relative url to absolute
+                url=response.urljoin(torrent),  # relative url to absolute
                 callback=self.handle_item,
                 dont_filter=True
             )
