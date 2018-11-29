@@ -31,7 +31,8 @@ class SexinsexSpider(BaseSpider):
 
     rules = (
         Rule(
-            LinkExtractor(allow='forum-(327|210|325|426|318|143|230|229|122|463|25|58|77)-(1|2|3|4|5|6|7|8|9)\.html', ),
+            # LinkExtractor(allow='forum-(318|143|230|229|122|463|25|58|77)-\d+\.html', ),
+            LinkExtractor(allow='forum-(318|143|230|229|122|463|25|58|77)-(1|2|3|4|5|6|7|8|9)\.html', ),
             follow=True
         ),
         Rule(LinkExtractor(allow='thread-\d+-1-\d+.html', ), follow=True, callback='handle_page'),
@@ -39,7 +40,7 @@ class SexinsexSpider(BaseSpider):
 
     deep_rules = (
         Rule(
-            LinkExtractor(allow='forum-(327|210|325|426|318|143|230|229|122|463|25|58|77)-\d+\.html', ),
+            LinkExtractor(allow='forum-(318|143|230|229|122|463|25|58|77)-\d+\.html', ),
             follow=True
         ),
         Rule(LinkExtractor(allow='thread-\d+-1-\d+.html', ), follow=True, callback='handle_page'),
@@ -52,8 +53,7 @@ class SexinsexSpider(BaseSpider):
         for torrent in torrents:
             request = DownloadRequest(
                 url=response.urljoin(torrent),  # relative url to absolute
-                callback=self.handle_item,
-                dont_filter=True
+                callback=self.handle_item
             )
             request.meta['from_url'] = response.url
             yield request
