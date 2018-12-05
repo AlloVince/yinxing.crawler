@@ -2,7 +2,7 @@
 import math
 import time
 import os
-# import re
+import re
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.http import Response, Request
@@ -42,8 +42,10 @@ class ThzSpider(BaseSpider):
 
     def handle_page(self, response: Response) -> TorrentFileItem:
         torrents = response.css('a[href^="forum.php?mod=attachment"]:contains("torrent")::attr(href)').extract()
-        if len(torrents) < 1:
+        page_links = response.css('a[href^="imc_attachad-ad.html"]:contains("torrent")::attr(href)').extract()
+        if len(torrents) < 1 and len(page_links) < 1:
             return
+
         for torrent in torrents:
             request = DownloadRequest(
                 url=response.urljoin(torrent),  # relative url to absolute
@@ -52,24 +54,19 @@ class ThzSpider(BaseSpider):
             request.meta['from_url'] = response.url
             yield request
 
-    # def handle_page(self, response: Response) -> TorrentFileItem:
-    #     page_links = response.css('a[href^="imc_attachad-ad.html"]:contains("torrent")::attr(href)').extract()
-    #     if len(page_links) < 1:
-    #         return
-    #
-    #     regex = re.compile(r'aid=(\w+)')
-    #     for page_link in page_links:
-    #         match = regex.search(page_link)
-    #         if not match:
-    #             continue
-    #         id = match.group(1)
-    #         request = DownloadRequest(
-    #             url=response.urljoin('forum.php?mod=attachment&aid=%s' % id),  # relative url to absolute
-    #             callback=self.handle_item,
-    #             dont_filter=True
-    #         )
-    #         request.meta['from_url'] = response.url
-    #         yield request
+        regex = re.compile(r'aid=(\w+)')
+        for page_link in page_links:
+            match = regex.search(page_link)
+            if not match:
+                continue
+            id = match.group(1)
+            request = DownloadRequest(
+                url=response.urljoin('forum.php?mod=attachment&aid=%s' % id),  # relative url to absolute
+                callback=self.handle_item,
+                dont_filter=True
+            )
+            request.meta['from_url'] = response.url
+            yield request
 
     def handle_item(self, response: Response) -> TorrentFileItem:
         return TorrentFileItem(
