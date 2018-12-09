@@ -31,13 +31,13 @@ class ThzSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='forum-(181|220|182|69|203|177)-(1|2|3|4|5|6|7|8|9)\.html', ), follow=True),
-        Rule(LinkExtractor(allow='thread-\d+-1-1.html', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow='forum-(181|220|182|69|203|177)-(1|2|3|4)\.html', ), follow=True),
+        Rule(LinkExtractor(allow='thread-\d+-1-\d+.html', ), follow=True, callback='handle_page'),
     )
 
     deep_rules = (
         Rule(LinkExtractor(allow='forum-(181|220|182|69|203|177)-\d+\.html', ), follow=True),
-        Rule(LinkExtractor(allow='thread-\d+-1-1.html', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow='thread-\d+-1-\d+.html', ), follow=True, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> TorrentFileItem:
