@@ -22,11 +22,11 @@ class BailuSpider(BaseSpider):
     name = 'sehuatang'
     allowed_domains = [domain]
     start_urls = [
-        'http://%s' % domain,
+        'https://%s' % domain,
     ]
 
     deep_start_urls = [
-        'http://%s' % domain,
+        'https://%s' % domain,
     ]
 
     rules = (
