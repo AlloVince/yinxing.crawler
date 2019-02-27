@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import re
 import math
 import time
@@ -16,17 +17,19 @@ class DownloadRequest(Request):
 
 regex = re.compile(r'attach-dialog-fid-1-aid-(\d+)-ajax-1.htm$')
 
+domain = os.environ.get('DOMAIN') or 'www.btbtt04.com'
+
 
 class BtjiaSpider(BaseSpider):
     version = '1.0.0'
     name = 'btjia'
-    allowed_domains = ['www.btjia.com']
+    allowed_domains = [domain]
     start_urls = [
-        'http://www.btjia.com/'
+        'https://%s' % domain,
     ]
 
     deep_start_urls = [
-        'http://www.btjia.com/'
+        'https://%s' % domain,
     ]
 
     rules = (
