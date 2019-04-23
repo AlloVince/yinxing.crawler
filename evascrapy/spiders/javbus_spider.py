@@ -29,6 +29,9 @@ class JavbusSpider(BaseSpider):
 
     deep_start_urls = [
         'https://%s' % domain,
+        'https://%s/actresses' % domain,
+        'https://%s/uncensored/actresses' % domain,
+        'https://%s/genre' % domain,
         'https://%s' % domain2,
     ]
 
@@ -42,7 +45,14 @@ class JavbusSpider(BaseSpider):
 
     deep_rules = (
         Rule(LinkExtractor(allow='/page/\d+', ), follow=True),
+        Rule(LinkExtractor(allow='%s/star/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow='%s/genre/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow='%s/director/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow='%s/studio/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow='%s/label/\w+(/\d+)?' % domain, ), follow=True),
         Rule(LinkExtractor(allow='%s/uncensored' % domain, ), follow=True),
+        Rule(LinkExtractor(allow='%s/uncensored/star/\w+/\d+' % domain, ), follow=True),
+        Rule(LinkExtractor(allow='%s/uncensored/genre/\w+(/\d+)?' % domain, ), follow=True),
         Rule(LinkExtractor(allow='%s/uncensored/page/\d+' % domain, ), follow=True),
         Rule(LinkExtractor(allow='%s/[^\/]{3,}$' % domain, ), follow=True, callback='handle_page'),
         Rule(LinkExtractor(allow='%s/[^\/]{3,}$' % domain2, ), follow=True, callback='handle_page'),
@@ -53,9 +63,10 @@ class JavbusSpider(BaseSpider):
         if not match:
             return
 
+        current_domain = response.url.split('//')[-1].split('/')[0]
         request = Request(
             url='https://%s/ajax/uncledatoolsbyajax.php?gid=%s&uc=%s&img=%s' % (
-                domain, match.group(1), match.group(2), match.group(3)
+                current_domain, match.group(1), match.group(2), match.group(3)
             ),
             callback=self.handle_ajax,
         )
