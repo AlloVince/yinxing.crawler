@@ -1,4 +1,4 @@
-FROM allovince/evascrapy:v1.3.2
+FROM allovince/evascrapy:v1.4.0
 
 COPY ./evascrapy/spiders /opt/htdocs/evascrapy/evascrapy/spiders
 
