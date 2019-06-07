@@ -17,7 +17,7 @@ class DownloadRequest(Request):
 
 regex = re.compile(r'attach-dialog-fid-1-aid-(\d+)-ajax-1.htm$')
 
-domain = os.environ.get('DOMAIN') or 'www.btbtt04.com'
+domain = os.environ.get('DOMAIN') or 'www.btbtt08.com'
 
 
 class BtjiaSpider(BaseSpider):
@@ -25,11 +25,11 @@ class BtjiaSpider(BaseSpider):
     name = 'btjia'
     allowed_domains = [domain]
     start_urls = [
-        'https://%s' % domain,
+        'http://%s' % domain,
     ]
 
     deep_start_urls = [
-        'https://%s' % domain,
+        'http://%s' % domain,
     ]
 
     rules = (
