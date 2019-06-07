@@ -24,23 +24,12 @@ class OnejavSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='/new\?page=(1|2|3|4|5|6|7|8|9|10)$', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/.+\.torrent$', ), follow=True, callback='handle_item'),
+        Rule(LinkExtractor(allow='/new\?page=(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)$', ), follow=True),
+        Rule(LinkExtractor(allow='/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
     )
 
     deep_rules = (
         Rule(LinkExtractor(allow='/actress/\?page=\d+', ), follow=True),
         Rule(LinkExtractor(allow='/actress/[^/]+', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/.+\.torrent$', ), follow=True, callback='handle_item'),
+        Rule(LinkExtractor(allow='/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
     )
-
-    def handle_item(self, response: Response) -> TorrentFileItem:
-        from_url = response.request.headers.get('Referer', None)
-        return TorrentFileItem(
-            url=response.url,
-            from_url=str(from_url, encoding='utf-8') if from_url else None,
-            task=self.settings.get('APP_TASK'),
-            version=self.version,
-            timestamp=math.floor(time.time()),
-            body=response.body,
-        )
