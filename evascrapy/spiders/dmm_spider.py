@@ -10,15 +10,15 @@ class DmmSpider(BaseSpider):
     name = 'dmm'
     allowed_domains = ['www.dmm.co.jp']
     start_urls = [
-        'http://www.dmm.co.jp/digital/videoa/-/list/=/sort=date/'
+        'https://www.dmm.co.jp/digital/videoa/-/list/=/sort=date/'
     ]
 
     deep_start_urls = [
-        'http://www.dmm.co.jp/digital/videoa/-/list/=/sort=date/',
-        'http://www.dmm.co.jp/digital/videoa/-/genre/=/display=syllabary/sort=ranking/',
-        'http://www.dmm.co.jp/digital/videoa/-/maker/',
-        'http://www.dmm.co.jp/digital/videoa/-/series/=/keyword=a/sort=ruby/',
-        'http://www.dmm.co.jp/digital/videoa/-/actress/=/keyword=a/',
+        'https://www.dmm.co.jp/digital/videoa/-/list/=/sort=date/',
+        'https://www.dmm.co.jp/digital/videoa/-/genre/=/display=syllabary/sort=ranking/',
+        'https://www.dmm.co.jp/digital/videoa/-/maker/',
+        'https://www.dmm.co.jp/digital/videoa/-/series/=/keyword=a/sort=ruby/',
+        'https://www.dmm.co.jp/digital/videoa/-/actress/=/keyword=a/',
     ]
 
     rules = (
