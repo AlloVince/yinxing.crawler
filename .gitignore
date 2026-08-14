@@ -3,6 +3,11 @@
 !evascrapy/spiders/
 !evascrapy/spiders/*_spider.py
 !README.md
+!docs/
+!docs/**
 !Dockerfile
 !.travis.yml
 !package.json
+!.github/
+!.github/workflows/
+!.github/workflows/ci.yml
