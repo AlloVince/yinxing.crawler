@@ -40,6 +40,9 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      new_release_published: ${{ steps.release.outputs.new_release_published }}
+      new_release_version: ${{ steps.release.outputs.new_release_version }}
     permissions:
       contents: write
     steps:
@@ -47,9 +50,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Semantic release
+        id: release
         uses: cycjimmy/semantic-release-action@v4
         with:
           semantic_version: "24.2.3"
+          extra_plugins: "@semantic-release/github"
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,6 +80,14 @@ jobs:
           context: .
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:staging
+
+      - name: Build and push versioned image
+        if: needs.semantic-release.outputs.new_release_published == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.DOCKER_IMAGE }}:v${{ needs.semantic-release.outputs.new_release_version }}
 
   release:
     needs: build
