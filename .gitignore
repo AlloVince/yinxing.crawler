@@ -11,3 +11,4 @@
 !.github/
 !.github/workflows/
 !.github/workflows/ci.yml
+!.releaserc.json
