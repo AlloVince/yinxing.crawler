@@ -41,37 +41,184 @@ class DmmSpider(BaseSpider):
         query ContentWithReviews($id: ID!, $sort: ReviewSort!) {
           ppvContent(id: $id) {
             id
+            floor
             title
+            notices
+            isNoIndex
+            isAllowForeign
             description
             contentType
             releaseStatus
             isExclusiveDelivery
             wishlistCount
             duration
+            makerReleasedAt
+            announcements {
+              body
+              __typename
+            }
+            featureArticles {
+              link {
+                url
+                text
+                __typename
+              }
+              __typename
+            }
             saleStartDate
             saleEndDate
             deliveryStartDate
             packageImage {
               mediumUrl
               largeUrl
-              smallUrl
+              __typename
             }
-            sampleImages { imageUrl }
+            sampleImages {
+              number
+              imageUrl
+              largeImageUrl
+              __typename
+            }
+            mostPopularContentImage {
+              ... on ContentSampleImage {
+                largeImageUrl
+                imageUrl
+                __typename
+              }
+              ... on PackageImage {
+                largeUrl
+                mediumUrl
+                __typename
+              }
+              __typename
+            }
+            sample2DMovie {
+              highestMovieUrl
+              hlsMovieUrl
+              __typename
+            }
+            sampleVRMovie {
+              highestMovieUrl
+              __typename
+            }
+            weeklyRanking: ranking(term: Weekly)
+            monthlyRanking: ranking(term: Monthly)
             pricing {
               lowestRegularPriceInclusiveTax
               lowestEffectivePriceInclusiveTax
               hasMultiplePrices
-            }
-            actresses { id name imageUrl }
-            genres { id name }
-            maker { id name }
-            series { id name }
-            label { id name }
-            directors { id name }
-            relatedTags(limit: 100) {
+              sale {
+                name
+                id
+                endAt
+                discountRate
+                __typename
+              }
+              pointRewardCampaign {
+                name
+                id
+                endAt
+                promotionId
+                rate
+                __typename
+              }
               __typename
-              ... on ContentTag { id name }
             }
+            products {
+              id
+              priority
+              deliveryUnit {
+                id
+                priority
+                streamMaxQualityGroup
+                downloadMaxQualityGroup
+                __typename
+              }
+              pricing {
+                regularPriceInclusiveTax
+                effectivePriceInclusiveTax
+                __typename
+              }
+              expireDays
+              licenseType
+              shopName
+              __typename
+            }
+            actresses {
+              id
+              name
+              nameRuby
+              imageUrl
+              bustTop
+              bust
+              waist
+              hip
+              height
+              ppvSummary(floor: AV) {
+                contentCount
+                __typename
+              }
+              __typename
+            }
+            histrions {
+              id
+              name
+              __typename
+            }
+            genres {
+              id
+              name
+              __typename
+            }
+            maker {
+              id
+              name
+              __typename
+            }
+            series {
+              id
+              name
+              __typename
+            }
+            label {
+              id
+              name
+              __typename
+            }
+            directors {
+              id
+              name
+              __typename
+            }
+            makerContentId
+            relatedTags(limit: 99) {
+              ... on ContentTagGroup {
+                tags {
+                  id
+                  name
+                  __typename
+                }
+                __typename
+              }
+              ... on ContentTag {
+                id
+                name
+                __typename
+              }
+              __typename
+            }
+          }
+          reviewSummary(contentId: $id) {
+            average
+            total
+            withCommentTotal
+            distributions {
+              total
+              withCommentTotal
+              rating
+              __typename
+            }
+            __typename
           }
           reviews(contentId: $id, sort: $sort, limit: 10, offset: 0) {
             items {
