@@ -36,26 +36,26 @@ class JavbusSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='/page/(1|2|3|4|5|6|7|8|9)', ), follow=True),
-        Rule(LinkExtractor(allow='%s/uncensored' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/uncensored/page/(1|2|3|4|5|6|7|8|9)' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/[^\/]{3,}$' % domain, ), follow=False, callback='handle_page'),
-        Rule(LinkExtractor(allow='%s/[^\/]{3,}$' % domain2, ), follow=False, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'/page/(1|2|3|4|5|6|7|8|9)', ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/uncensored' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/uncensored/page/(1|2|3|4|5|6|7|8|9)' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/[^\/]{3,}$' % domain, ), follow=False, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'%s/[^\/]{3,}$' % domain2, ), follow=False, callback='handle_page'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='/page/\d+', ), follow=True),
-        Rule(LinkExtractor(allow='%s/star/\w+(/\d+)?' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/genre/\w+(/\d+)?' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/director/\w+(/\d+)?' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/studio/\w+(/\d+)?' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/label/\w+(/\d+)?' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/uncensored' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/uncensored/star/\w+/\d+' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/uncensored/genre/\w+(/\d+)?' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/uncensored/page/\d+' % domain, ), follow=True),
-        Rule(LinkExtractor(allow='%s/[^\/]{3,}$' % domain, ), follow=True, callback='handle_page'),
-        Rule(LinkExtractor(allow='%s/[^\/]{3,}$' % domain2, ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'/page/\d+', ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/star/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/genre/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/director/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/studio/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/label/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/uncensored' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/uncensored/star/\w+/\d+' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/uncensored/genre/\w+(/\d+)?' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/uncensored/page/\d+' % domain, ), follow=True),
+        Rule(LinkExtractor(allow=r'%s/[^\/]{3,}$' % domain, ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'%s/[^\/]{3,}$' % domain2, ), follow=True, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> Request:

@@ -31,22 +31,22 @@ class SisSpider(BaseSpider):
 
     rules = (
         Rule(
-            LinkExtractor(allow='forum-(143|230|229|231|25|58|77|27)-(1|2|3|4|5)\.html', ),
+            LinkExtractor(allow=r'forum-(143|230|229|231|25|58|77|27)-(1|2|3|4|5)\.html', ),
             follow=True
         ),
-        Rule(LinkExtractor(allow='thread-\d+-1-\d+.html', ), follow=True),
-        Rule(LinkExtractor(allow='attachment\.php\?aid=\d+$', ), follow=True),
-        Rule(LinkExtractor(allow='attachment\.php\?aid=\d+&clickDownload=1$', ), follow=False,
+        Rule(LinkExtractor(allow=r'thread-\d+-1-\d+.html', ), follow=True),
+        Rule(LinkExtractor(allow=r'attachment\.php\?aid=\d+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'attachment\.php\?aid=\d+&clickDownload=1$', ), follow=False,
              callback='handle_torrent'),
     )
 
     deep_rules = (
         Rule(
-            LinkExtractor(allow='forum-(143|230|229|231|25|58|77|27)-\d+\.html', ),
+            LinkExtractor(allow=r'forum-(143|230|229|231|25|58|77|27)-\d+\.html', ),
             follow=True
         ),
-        Rule(LinkExtractor(allow='thread-\d+-1-\d+.html', ), follow=True),
-        Rule(LinkExtractor(allow='attachment\.php\?aid=\d+$', ), follow=True),
-        Rule(LinkExtractor(allow='attachment\.php\?aid=\d+&clickDownload=1$', ), follow=False,
+        Rule(LinkExtractor(allow=r'thread-\d+-1-\d+.html', ), follow=True),
+        Rule(LinkExtractor(allow=r'attachment\.php\?aid=\d+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'attachment\.php\?aid=\d+&clickDownload=1$', ), follow=False,
              callback='handle_torrent'),
     )

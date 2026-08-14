@@ -26,13 +26,13 @@ class RarbgSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='torrents.php\?category', ), follow=True),
-        Rule(LinkExtractor(allow='torrent/\w+', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'torrents.php\?category', ), follow=True),
+        Rule(LinkExtractor(allow=r'torrent/\w+', ), follow=True, callback='handle_page'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='torrents.php\?category', ), follow=True),
-        Rule(LinkExtractor(allow='torrent/\w+', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'torrents.php\?category', ), follow=True),
+        Rule(LinkExtractor(allow=r'torrent/\w+', ), follow=True, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> TorrentFileItem:

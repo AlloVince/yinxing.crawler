@@ -30,17 +30,17 @@ class AisexSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='bt/thread.php\?fid=(16|4|5|22|11|6|23|24)$', ), follow=True),
-        Rule(LinkExtractor(allow='bt/thread.php\?fid=(16|4|5|22|11|6|23|24)&page=(1|2|3|4|5|6|7|8|9)$', ), follow=True),
-        Rule(LinkExtractor(allow='bt/htm_data/\d+/\d+/\d+\.html$', ), follow=True),
-        Rule(LinkExtractor(allow='link.php\?ref=\w+$', ), follow=False, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'bt/thread.php\?fid=(16|4|5|22|11|6|23|24)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'bt/thread.php\?fid=(16|4|5|22|11|6|23|24)&page=(1|2|3|4|5|6|7|8|9)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'bt/htm_data/\d+/\d+/\d+\.html$', ), follow=True),
+        Rule(LinkExtractor(allow=r'link.php\?ref=\w+$', ), follow=False, callback='handle_page'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='bt/thread.php\?fid=(16|4|5|22|11|6|23|24)$', ), follow=True),
-        Rule(LinkExtractor(allow='bt/thread.php\?fid=(16|4|5|22|11|6|23|24)&page=\d+$', ), follow=True),
-        Rule(LinkExtractor(allow='bt/htm_data/\d+/\d+/\d+\.html$', ), follow=True),
-        Rule(LinkExtractor(allow='link.php\?ref=\w+$', ), follow=False, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'bt/thread.php\?fid=(16|4|5|22|11|6|23|24)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'bt/thread.php\?fid=(16|4|5|22|11|6|23|24)&page=\d+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'bt/htm_data/\d+/\d+/\d+\.html$', ), follow=True),
+        Rule(LinkExtractor(allow=r'link.php\?ref=\w+$', ), follow=False, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> TorrentFileItem:

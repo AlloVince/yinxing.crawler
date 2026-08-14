@@ -20,13 +20,13 @@ class MypornSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='/torrents/(1|2|3|4|5|6|7|8|9|10)$', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/\w+$', ), follow=True),
-        Rule(LinkExtractor(allow='/download\.php.+', ), follow=False, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'/torrents/(1|2|3|4|5|6|7|8|9|10)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/\w+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'/download\.php.+', ), follow=False, callback='handle_torrent'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='/torrents/\d+$', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/\w+$', ), follow=True),
-        Rule(LinkExtractor(allow='/download\.php.+', ), follow=False, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'/torrents/\d+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/\w+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'/download\.php.+', ), follow=False, callback='handle_torrent'),
     )

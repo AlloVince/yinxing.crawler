@@ -27,11 +27,11 @@ class TokyotoshoSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='www.tokyotosho.info/\?page=([0-9]|10)&cat=0', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'www.tokyotosho.info/\?page=([0-9]|10)&cat=0', ), follow=True, callback='handle_list'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='www.tokyotosho.info/\?', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'www.tokyotosho.info/\?', ), follow=True, callback='handle_list'),
     )
 
     def handle_list(self, response: Response) -> Request:

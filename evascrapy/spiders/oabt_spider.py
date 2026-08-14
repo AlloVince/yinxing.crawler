@@ -46,11 +46,11 @@ class OabtSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='index/index/cid/\d+/p/(1|2|3|4|5)', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'index/index/cid/\d+/p/(1|2|3|4|5)', ), follow=True, callback='handle_list'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='index/index/cid/\d+/p/\d+', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'index/index/cid/\d+/p/\d+', ), follow=True, callback='handle_list'),
     )
 
     def parse_start_url(self, response):

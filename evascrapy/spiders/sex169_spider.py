@@ -30,16 +30,16 @@ class Sex169Spider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='mod=forumdisplay&fid=(93|160|133|53|45|137|138)$', ), follow=True),
-        Rule(LinkExtractor(allow='mod=forumdisplay&fid=(93|160|133|53|45|137|138)&page=(1|2|3|4|5|6|7|8|9)$', ),
+        Rule(LinkExtractor(allow=r'mod=forumdisplay&fid=(93|160|133|53|45|137|138)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'mod=forumdisplay&fid=(93|160|133|53|45|137|138)&page=(1|2|3|4|5|6|7|8|9)$', ),
              follow=True),
-        Rule(LinkExtractor(allow='mod=viewthread&tid=\d+&extra=page%3D\d+$', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'mod=viewthread&tid=\d+&extra=page%3D\d+$', ), follow=True, callback='handle_page'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='mod=forumdisplay&fid=(93|160|133|53|45|137|138)$', ), follow=True),
-        Rule(LinkExtractor(allow='mod=forumdisplay&fid=(93|160|133|53|45|137|138)&page=\d+$', ), follow=True),
-        Rule(LinkExtractor(allow='mod=viewthread&tid=\d+&extra=page%3D\d+$', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'mod=forumdisplay&fid=(93|160|133|53|45|137|138)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'mod=forumdisplay&fid=(93|160|133|53|45|137|138)&page=\d+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'mod=viewthread&tid=\d+&extra=page%3D\d+$', ), follow=True, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> TorrentFileItem:

@@ -28,13 +28,13 @@ class NyaaSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='sukebei.nyaa.si/\?p=([0-9]|10)', ), follow=True, callback='handle_list'),
-        Rule(LinkExtractor(allow='nyaa.si/\?p=([0-9]|10)', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'sukebei.nyaa.si/\?p=([0-9]|10)', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'nyaa.si/\?p=([0-9]|10)', ), follow=True, callback='handle_list'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='sukebei.nyaa.si/\?', ), follow=True, callback='handle_list'),
-        Rule(LinkExtractor(allow='nyaa.si/\?', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'sukebei.nyaa.si/\?', ), follow=True, callback='handle_list'),
+        Rule(LinkExtractor(allow=r'nyaa.si/\?', ), follow=True, callback='handle_list'),
     )
 
     def handle_list(self, response: Response) -> Request:

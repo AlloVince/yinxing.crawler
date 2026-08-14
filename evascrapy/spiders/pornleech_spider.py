@@ -20,14 +20,13 @@ class PornleechSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='^/index\.php.+pages=(1|2|3|4|5|6|7|8|9|10)$', ), follow=True),
-        Rule(LinkExtractor(allow='.+-\d+\.html$', ), follow=True),
-        Rule(LinkExtractor(allow='download\.php.+\.torrent$', ), follow=False, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'^/index\.php.+pages=(1|2|3|4|5|6|7|8|9|10)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'.+-\d+\.html$', ), follow=True),
+        Rule(LinkExtractor(allow=r'download\.php.+\.torrent$', ), follow=False, callback='handle_torrent'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='^/index\.php.+pages=\d+$', ), follow=True),
-        Rule(LinkExtractor(allow='.+-\d+\.html$', ), follow=True),
-        Rule(LinkExtractor(allow='download\.php.+\.torrent$', ), follow=False, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'^/index\.php.+pages=\d+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'.+-\d+\.html$', ), follow=True),
+        Rule(LinkExtractor(allow=r'download\.php.+\.torrent$', ), follow=False, callback='handle_torrent'),
     )
-

@@ -24,12 +24,12 @@ class OnejavSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='/new\?page=(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)$', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'/new\?page=(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='/actress/\?page=\d+', ), follow=True),
-        Rule(LinkExtractor(allow='/actress/[^/]+', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'/actress/\?page=\d+', ), follow=True),
+        Rule(LinkExtractor(allow=r'/actress/[^/]+', ), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
     )

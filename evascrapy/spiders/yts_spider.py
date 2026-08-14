@@ -21,15 +21,15 @@ class YtsSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='/browse-movies?page=(1|2|3|4|5|6|7|8|9)$', ), follow=True),
-        Rule(LinkExtractor(allow='/movie/\w+', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/download/\w+', ), callback='handle_item'),
+        Rule(LinkExtractor(allow=r'/browse-movies?page=(1|2|3|4|5|6|7|8|9)$', ), follow=True),
+        Rule(LinkExtractor(allow=r'/movie/\w+', ), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/download/\w+', ), callback='handle_item'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='/browse-movies?page=\d+$', ), follow=True),
-        Rule(LinkExtractor(allow='/movie/\w+', ), follow=True),
-        Rule(LinkExtractor(allow='/torrent/download/\w+', ), callback='handle_item'),
+        Rule(LinkExtractor(allow=r'/browse-movies?page=\d+$', ), follow=True),
+        Rule(LinkExtractor(allow=r'/movie/\w+', ), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/download/\w+', ), callback='handle_item'),
     )
 
     def handle_item(self, response: Response) -> TorrentFileItem:

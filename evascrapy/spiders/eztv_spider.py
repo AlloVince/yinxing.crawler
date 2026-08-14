@@ -26,11 +26,11 @@ class EztvSpider(BaseSpider):
     ]
 
     rules = (
-        Rule(LinkExtractor(allow='/page_(1|2|3|4|5|6|7|8|9)$', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'/page_(1|2|3|4|5|6|7|8|9)$', ), follow=True, callback='handle_page'),
     )
 
     deep_rules = (
-        Rule(LinkExtractor(allow='/page_\d+$', ), follow=True, callback='handle_page'),
+        Rule(LinkExtractor(allow=r'/page_\d+$', ), follow=True, callback='handle_page'),
     )
 
     def handle_page(self, response: Response) -> TorrentFileItem:
