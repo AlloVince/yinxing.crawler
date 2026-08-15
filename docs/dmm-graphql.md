@@ -222,5 +222,5 @@ uv run scrapy settings --get AUTOTHROTTLE_ENABLED
 启动：
 
 ```bash
-uv run scrapy crawl dmm
+uv run scrapy crawl fanza
 ```
