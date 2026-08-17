@@ -137,6 +137,8 @@ query ContentWithReviews($id: ID!, $sort: ReviewSort!) {
 
 一次请求同时返回影片主体和评论第一页。评论接口虽然支持 `offset`，当前 Spider 按需求只请求 `offset=0`，不抓取后续评论页。
 
+详情请求现已额外合并相似推荐字段 `recommendedContents(limit: 40, recommendId: $i2iRecommendId)`（`I2iRecommendData`），用于从推荐继续扩展抓取推荐影片；字段结构见 [`dmm-detail-graphql-inventory.md`](dmm-detail-graphql-inventory.md)。
+
 ## 4. `ppvContent` 字段说明
 
 | 字段 | 类型/含义 |

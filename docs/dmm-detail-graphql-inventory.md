@@ -14,7 +14,7 @@
 
 1. **核心原始数据**：`ContentPageData` + `UserReviews`。这是 Spider 最应该落盘的主体。
 2. **页面公共数据**：`Root`、`Maintenance`、`PromotionBanners`、`SideBar`。它们与具体影片无关，适合独立缓存或按需请求。
-3. **个性化/推荐数据**：`RecentlyViewedContents`、`I2iRecommendData`、`U2iRecommendData`、`ActressInformation`、`BookmarkDiscountCount`。依赖 Cookie、用户状态或页面行为，不建议默认写入影片原始数据。
+3. **个性化/推荐数据**：`RecentlyViewedContents`、`U2iRecommendData`、`ActressInformation`、`BookmarkDiscountCount`。依赖 Cookie、用户状态或页面行为，不建议默认写入影片原始数据。（`I2iRecommendData` 基于当前影片、不依赖登录，已合并进核心详情请求。）
 
 如果只为保存影片原始数据，推荐将 `ppvContent`、`reviewSummary` 和 `reviews` 合并为一个请求；其余请求保持可选。
 
@@ -25,7 +25,7 @@
 | `ContentPageData` | 影片详情、价格、演员、标签、评价汇总 | 是 | 部分字段 | 核心采集 |
 | `UserReviews` | 评价明细分页 | 是 | 通常否 | 核心采集，可分页 |
 | `RecentlyViewedContents` | 最近浏览影片摘要 | 否，多 ID | 浏览 Cookie | 可选 |
-| `I2iRecommendData` | 基于当前影片的相似推荐 | 是 | 否 | 可选 |
+| `I2iRecommendData` | 基于当前影片的相似推荐 | 是 | 否 | 已合并进详情请求 |
 | `U2iRecommendData` | 面向用户的推荐 | 否 | 是 | 默认跳过 |
 | `ActressInformation` | 按演员查询关联影片 | 否，多演员 | 否 | 可选，成本较高 |
 | `SideBar` | 销售、积分、演员/标签/系列排行、品牌店 | 否 | 页面参数 | 默认跳过 |
@@ -170,12 +170,37 @@ reviews(contentId: $id, sort: $sort, limit: 10, offset: $offset) {
 
 ### `I2iRecommendData`
 
-根据当前影片返回相似推荐：
+根据当前影片返回相似推荐（item-to-item，不依赖登录）。该字段已合并进核心详情请求 `ContentWithReviews` 的 `ppvContent` 选择集，用于从推荐继续扩展抓取推荐影片。
 
-- `recommendedContents.id`
-- `content` 下的标题、类型、独家状态、发布状态、封面、收藏数、价格、评价摘要
-- `trackingId`：推荐链路追踪标识
-- `recommendId`：推荐引擎/实验配置标识
+```graphql
+query I2iRecommendData($contentId: ID!, $i2iRecommendId: ID!) {
+  ppvContent(id: $contentId) {
+    ...i2iRecommendedContents
+    __typename
+  }
+}
+fragment i2iRecommendedContents on PPVContent {
+  recommendedContents(limit: 40, recommendId: $i2iRecommendId) {
+    id
+    content { ... }
+    trackingId
+    __typename
+  }
+}
+```
+
+变量示例：
+
+```json
+{"contentId": "1piyo00234", "i2iRecommendId": "81b5e821"}
+```
+
+- `recommendedContents`：`PPVContent` 上的字段，参数 `limit` 与 `recommendId`。
+- `limit`：服务端返回硬上限为 40，大于 40 仍只返回 40 条。
+- `recommendId`：即变量 `$i2iRecommendId`，为全局稳定的推荐引擎 ID（当前值 `81b5e821`）；无效 ID 返回 0 条不报错。
+- `recommendedContents.id`：推荐影片 ID，用于生成新的详情请求。
+- `content`：推荐影片摘要（标题、类型、独家状态、发布状态、封面、收藏数、价格、评价摘要）。
+- `trackingId`：推荐链路追踪标识。
 
 ### `U2iRecommendData`
 
@@ -279,7 +304,7 @@ query ContentRawData($id: ID!, $sort: ReviewSort!, $offset: Int!) {
 
 ### 默认采集
 
-- `ppvContent` 核心详情
+- `ppvContent` 核心详情（含 `recommendedContents` 相似推荐）
 - `reviewSummary`
 - `reviews` 第一页
 - 原始请求变量和抓取时间
@@ -287,7 +312,6 @@ query ContentRawData($id: ID!, $sort: ReviewSort!, $offset: Int!) {
 ### 可配置采集
 
 - 后续评价页
-- `I2iRecommendData`
 - `RecentlyViewedContents`
 - `ActressInformation`
 

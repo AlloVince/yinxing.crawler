@@ -242,4 +242,9 @@ limit = 120
 APP_RUN_DEEP=1 uv run scrapy crawl fanza
 ```
 
-深度模式遍历 47 个五十音演员目录，为每个演员创建 `actressIds` 列表任务，并按演员列表分页到底。深度模式的影片列表排序保持为 `SALES_RANK_SCORE`。
+深度模式包含两类入口，均走「入口 → 列表分页到底 → 详情」：
+
+1. 遍历 47 个五十音演员目录，为每个演员创建 `actressIds` 列表任务；
+2. 遍历分类页 `/av/list` 的 genre 列表（硬编码 282 个去重 ID），为每个 genre 创建 `genreIds` 列表任务。
+
+演员与类别是平行的分片维度，单个列表请求只携带 `actressIds` 或 `genreIds` 之一，不会同时出现。两类列表任务排序保持为 `SALES_RANK_SCORE`，均分页到底。
