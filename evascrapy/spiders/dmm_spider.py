@@ -14,7 +14,6 @@ class DmmSpider(BaseSpider):
     allowed_domains = ['www.dmm.co.jp']
 
     actress_index_url = 'https://www.dmm.co.jp/mono/dvd/-/actress/'
-    list_page_size = 120
     age_check_cookies = {'age_check_done': '1'}
 
     # The actress directory is the entry point.  The unfiltered ranking list
@@ -86,10 +85,8 @@ class DmmSpider(BaseSpider):
             )
 
     def _build_request(self, rule_index, link):
-        """Normalize DMM links and request the maximum list page size."""
+        """Build requests with the age-check cookie for DMM links."""
         url = link.url.split('?', 1)[0]
-        if '/mono/dvd/-/list/=' in url and '/limit=' not in url:
-            url = url.rstrip('/') + '/limit=%d/' % self.list_page_size
 
         request = Request(
             url=url,
