@@ -549,11 +549,6 @@ class FanzaSpider(BaseSpider):
         if not ppv_content:
             raise RuntimeError('DMM detail GraphQL returned no content: %s' % response.meta['content_id'])
 
-        for rec in ppv_content.get('recommendedContents') or []:
-            rec_id = rec.get('id')
-            if rec_id:
-                yield self._build_detail_request(rec_id)
-
         yield RawJsonItem(
             url=response.meta['detail_url'],
             version=self.version,
