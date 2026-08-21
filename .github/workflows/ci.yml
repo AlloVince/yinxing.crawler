@@ -87,7 +87,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:v${{ needs.semantic-release.outputs.new_release_version }}
+          tags: |
+            ${{ env.DOCKER_IMAGE }}:latest
+            ${{ env.DOCKER_IMAGE }}:v${{ needs.semantic-release.outputs.new_release_version }}
 
   release:
     needs: build
