@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""DMM DVD spider: actress index -> actress-filtered lists -> details."""
+"""DMM DVD spider: lists and actress-filtered lists -> details."""
 
 from scrapy.http import Request
 from scrapy.linkextractors import LinkExtractor
@@ -21,9 +21,6 @@ class DmmSpider(BaseSpider):
     start_urls = [actress_index_url]
     deep_start_urls = [
         'https://www.dmm.co.jp/mono/dvd/-/list/=/sort=date/',
-        'https://www.dmm.co.jp/mono/dvd/-/genre/=/display=syllabary/sort=ranking/',
-        'https://www.dmm.co.jp/mono/dvd/-/maker/',
-        'https://www.dmm.co.jp/mono/dvd/-/series/=/keyword=a/sort=ruby/',
         'https://www.dmm.co.jp/mono/dvd/-/actress/=/keyword=a/',
     ]
 
@@ -52,17 +49,17 @@ class DmmSpider(BaseSpider):
         ),
     )
     deep_rules = (
-        # Directory entry pages.
+        # Only the actress directory is used for discovery.
         Rule(
             LinkExtractor(
-                allow=r'mono/dvd/-/(?:actress|maker|series)(?:/|$)',
+                allow=r'mono/dvd/-/actress(?:/|$)',
             ),
             follow=True,
         ),
-        # Filtered list pages, including pagination.
+        # Only unfiltered and actress-filtered list pages, including pagination.
         Rule(
             LinkExtractor(
-                allow=r'mono/dvd/-/list/=/article=(?:actress|series|maker|keyword)/id=\d+/',
+                allow=r'mono/dvd/-/list(?:/|$)',
             ),
             follow=True,
         ),
