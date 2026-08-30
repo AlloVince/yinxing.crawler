@@ -1,4 +1,4 @@
-FROM allovince/evascrapy:v2.1.11
+FROM allovince/evascrapy:v2.1.12
 # Keep the crawler image rebuild aligned with the pinned EvaScrapy runtime.
 
 # Fail the image build if the pinned runtime is missing the crawler's timezone dependency.
