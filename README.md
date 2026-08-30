@@ -2,6 +2,19 @@
 
 Spiders based on [EvaScrapy](https://github.com/AlloVince/EvaScrapy)
 
+## nyaa 运行约定
+
+`crawler.18x.yml` 当前只部署 `crawler-nyaa`。nyaa 的详情页会产生 torrent 下载请求，
+请求必须把最终下载 URL 放入 `request.meta['detail_url']`，以便 EvaScrapy 的
+`S3DupeFilter` 使用 URL marker 做跨运行防重。torrent 内容本身仍按 bencode 的
+`info` 字典计算 SHA-1，并以 info_hash 分片路径保存。
+
+发布与验收注意事项：
+
+- yinxing.crawler 镜像依赖 EvaScrapy 的已发布版本；先发布 EvaScrapy，再更新 Dockerfile 的 `FROM` 并发布 yinxing.crawler。
+- 必须在目标镜像中实际 import 运行时依赖，并检查镜像 tag 的 digest/创建时间；CI 通过不等于 NAS 已拉到新镜像。
+- 不要在 NAS 上使用多个 `docker-compose run` 实例模拟常驻服务；nyaa 默认只能有一个实例，避免被目标站点封禁 IP。
+
 ## FANZA
 
 - 入口：`https://video.dmm.co.jp/av/list/`
