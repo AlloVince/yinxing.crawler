@@ -8,25 +8,14 @@ domain = os.environ.get('DOMAIN') or 'myporn.club'
 
 
 class MypornSpider(BaseSpider):
-    version = '1.0.0'
+    version = '1.1.0'
     name = 'myporn'
     allowed_domains = [domain, 'ct1.myporn.club']
-    start_urls = [
-        'http://%s/torrents' % domain,
-    ]
-
-    deep_start_urls = [
-        'http://%s/torrents' % domain,
-    ]
-
+    start_urls = ['https://%s/ts' % domain]
+    deep_start_urls = start_urls
     rules = (
-        Rule(LinkExtractor(allow=r'/torrents/(1|2|3|4|5|6|7|8|9|10)$', ), follow=True),
-        Rule(LinkExtractor(allow=r'/torrent/\w+$', ), follow=True),
-        Rule(LinkExtractor(allow=r'/download\.php.+', ), follow=False, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'/ts(?:/\d+)?$'), follow=True),
+        Rule(LinkExtractor(allow=r'/t/[A-Za-z0-9]+$'), follow=True),
+        Rule(LinkExtractor(allow=r'/download\.php\?.+'), follow=False, callback='handle_torrent'),
     )
-
-    deep_rules = (
-        Rule(LinkExtractor(allow=r'/torrents/\d+$', ), follow=True),
-        Rule(LinkExtractor(allow=r'/torrent/\w+$', ), follow=True),
-        Rule(LinkExtractor(allow=r'/download\.php.+', ), follow=False, callback='handle_torrent'),
-    )
+    deep_rules = rules

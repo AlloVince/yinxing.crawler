@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import math
-import time
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from evascrapy.base_spider import BaseSpider
-from scrapy.http import Response, Request
-from evascrapy.items import TorrentFileItem
 
 domain = os.environ.get('DOMAIN') or 'onejav.com'
 
@@ -15,21 +11,14 @@ class OnejavSpider(BaseSpider):
     version = '1.0.0'
     name = 'onejav'
     allowed_domains = [domain]
-    start_urls = [
-        'https://%s/new' % domain,
-    ]
-
-    deep_start_urls = [
-        'https://%s/actress/' % domain,
-    ]
-
+    start_urls = ['https://%s/new' % domain]
+    deep_start_urls = ['https://%s/actress/' % domain]
     rules = (
-        Rule(LinkExtractor(allow=r'/new\?page=(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)$', ), follow=True),
-        Rule(LinkExtractor(allow=r'/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'/new(?:\?page=\d+)?$'), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/.+\.torrent$'), follow=False, callback='handle_torrent'),
     )
-
     deep_rules = (
-        Rule(LinkExtractor(allow=r'/actress/\?page=\d+', ), follow=True),
-        Rule(LinkExtractor(allow=r'/actress/[^/]+', ), follow=True),
-        Rule(LinkExtractor(allow=r'/torrent/.+\.torrent$', ), follow=True, callback='handle_torrent'),
+        Rule(LinkExtractor(allow=r'/actress/(?:\?page=\d+)?$'), follow=True),
+        Rule(LinkExtractor(allow=r'/actress/[^/]+$'), follow=True),
+        Rule(LinkExtractor(allow=r'/torrent/.+\.torrent$'), follow=False, callback='handle_torrent'),
     )
