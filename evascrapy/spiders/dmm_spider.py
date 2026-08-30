@@ -59,7 +59,7 @@ class DmmSpider(BaseSpider):
         # Only unfiltered and actress-filtered list pages, including pagination.
         Rule(
             LinkExtractor(
-                allow=r'mono/dvd/-/list(?:/|$)',
+                allow=r'mono/dvd/-/list/=(?:/sort=[^/]+|/article=actress/id=\d+)(?:/|$)',
             ),
             follow=True,
         ),
