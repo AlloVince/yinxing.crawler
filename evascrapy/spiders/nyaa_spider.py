@@ -48,6 +48,7 @@ class NyaaSpider(BaseSpider):
                 dont_filter=True
             )
             request.meta['from_url'] = response.url
+            request.meta['detail_url'] = request.url
             yield request
 
     def handle_item(self, response: Response) -> TorrentFileItem:
