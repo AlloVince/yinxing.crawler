@@ -28,3 +28,9 @@ Spiders based on [EvaScrapy](https://github.com/AlloVince/EvaScrapy)
 - GraphQL 查询和字段说明见 [`docs/dmm-graphql.md`](docs/dmm-graphql.md)
 - 列表搜索参数、筛选字段和分片策略见 [`docs/dmm-search-parameters.md`](docs/dmm-search-parameters.md)
 - 演员目录接口、五十音参数和演员分页规则见 [`docs/dmm-actress-directory.md`](docs/dmm-actress-directory.md)
+
+## DMM DVD
+
+The `dmm` spider uses maker catalogues first and actress catalogues as a supplement,
+with canonical detail deduplication and isolated durable queues. See
+[`docs/dmm-catalog-crawl.md`](docs/dmm-catalog-crawl.md) for boundaries, recovery and validation.
