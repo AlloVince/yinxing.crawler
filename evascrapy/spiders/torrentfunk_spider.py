@@ -11,18 +11,21 @@ from evascrapy.base_spider import BaseSpider
 from evascrapy.items import TorrentFileItem
 
 
+domain = os.getenv('TORRENTFUNK_DOMAIN', 'www.torrentfunk2.com')
+
+
 class TorrentfunkSpider(BaseSpider):
     name = 'torrentfunk'
     version = '1.0.0'
-    allowed_domains = ['www.torrentfunk.com', 'ft.t0r.space']
+    allowed_domains = [domain, 'f.t0r.space', 'ft.t0r.space']
     categories = (
         'movies', 'television', 'games', 'music', 'software', 'anime',
         'ebooks', 'adult',
     )
     max_pages = 10  # The API exposes at most the first 1,000 rows per query.
     start_urls = [
-        'https://www.torrentfunk.com/api/latest.json?category=%s&limit=100&page=1'
-        % category
+        'https://%s/api/latest.json?category=%s&limit=100&page=1'
+        % (domain, category)
         for category in categories
     ]
     deep_start_urls = start_urls

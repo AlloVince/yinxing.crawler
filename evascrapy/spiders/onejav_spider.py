@@ -32,3 +32,7 @@ class OnejavSpider(BaseSpider):
         Rule(LinkExtractor(allow=r'/actress/[^/]+$'), follow=True),
         Rule(LinkExtractor(allow=r'/torrent/.+\.torrent$'), follow=False, callback='handle_torrent'),
     )
+    custom_settings = {
+        # OneJAV intermittently returns 503 at the catalogue entry point.
+        'RETRY_TIMES': 5,
+    }
