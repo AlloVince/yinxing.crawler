@@ -31,7 +31,11 @@ class TorrentfunkSpider(BaseSpider):
     deep_start_urls = start_urls
     rules = ()
     deep_rules = rules
-    custom_settings = {'CLOSESPIDER_ITEMCOUNT': 0}
+    custom_settings = {
+        'CLOSESPIDER_ITEMCOUNT': 0,
+        # The API documents transient 503s and may drop datacenter connections.
+        'RETRY_TIMES': 10,
+    }
 
     def parse_start_url(self, response: Response):
         yield from self.parse_api(response)
