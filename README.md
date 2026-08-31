@@ -1,6 +1,8 @@
 # yinxing.crawler
 
-Spiders based on [EvaScrapy](https://github.com/AlloVince/EvaScrapy)
+Spiders based on [EvaScrapy](https://github.com/AlloVince/EvaScrapy). The image
+contains the complete set of spiders synchronized from EvaScrapy's local
+development copies.
 
 ## nyaa 运行约定
 
