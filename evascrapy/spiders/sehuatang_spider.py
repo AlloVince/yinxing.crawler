@@ -17,20 +17,29 @@ class SehuatangSpider(BaseSpider):
     name = 'sehuatang'
     version = '1.0.0'
     allowed_domains = ['www.sehuatang.net']
-    start_urls = ['https://www.sehuatang.net/forum.php']
+    board_ids = (2, 36, 37, 103, 107, 160, 104, 38, 151, 152, 39, 148)
+    start_urls = [
+        'https://www.sehuatang.net/forum-{}-1.html'.format(board_id)
+        for board_id in board_ids
+    ]
     deep_start_urls = start_urls
 
     # The rules deliberately begin at the public forum index.  No login,
     # cookie, invite-code, challenge-solving, or guessed private board URL is
-    # used.  Attachment links are followed only when a public thread exposes
-    # them in its HTML.
+    # used.  Every rule is constrained to the boards below; attachment links
+    # are followed only when a scoped public thread exposes them in its HTML.
+    board_pattern = r'(?:2|36|37|103|107|160|104|38|151|152|39|148)'
     rules = (
         Rule(LinkExtractor(
-            allow=r'/(?:forum\.php\?mod=forumdisplay&fid=\d+[^#]*|forum-\d+-\d+\.html)$'
+            allow=(
+                r'/(?:forum\.php\?mod=forumdisplay&fid=' + board_pattern
+                + r'(?:[&#][^#]*)?|forum-' + board_pattern
+                + r'-\d+\.html)$'
+            )
         ), follow=True),
         Rule(LinkExtractor(
             allow=r'/(?:forum\.php\?mod=viewthread&tid=\d+[^#]*|thread-\d+-\d+-\d+\.html)$'
-        ), follow=True, process_request='normalize_thread_request'),
+        ), follow=True, process_request='scope_thread_request'),
         Rule(LinkExtractor(
             allow=r'/forum\.php\?mod=attachment&[^#]*'
         ), follow=False, callback='handle_attachment'),
@@ -56,19 +65,59 @@ class SehuatangSpider(BaseSpider):
     }
 
     _SAFE_ID_RE = re.compile(r"\bvar\s+safeid\s*=\s*['\"]([^'\"]+)['\"]")
+    _BOARD_PATH_RE = re.compile(r'/forum-(\d+)-(\d+)\.html$')
     _THREAD_PATH_RE = re.compile(r'/thread-(\d+)-(\d+)-\d+\.html$')
+    _THREAD_QUERY_RE = re.compile(r'/forum\.php\?mod=viewthread&tid=(\d+)')
+    _BOARD_RE = re.compile(
+        r'/forum-(?:2|36|37|103|107|160|104|38|151|152|39|148)-\d+\.html$'
+        r'|/forum\.php\?mod=forumdisplay&fid=(?:2|36|37|103|107|160|104|38|151|152|39|148)(?:[&#]|$)'
+    )
+
+    def start_requests(self):
+        """Use native board URLs; the equivalent SEO paths return HTTP 403."""
+        for entry_url in self.start_urls:
+            match = self._BOARD_PATH_RE.search(entry_url)
+            if match:
+                board_id, page = match.groups()
+                entry_url = (
+                    'https://www.sehuatang.net/forum.php?mod=forumdisplay'
+                    '&fid={}&page={}'.format(board_id, page)
+                )
+            yield Request(entry_url, callback=self._parse, dont_filter=True)
+
+    async def start(self):
+        """Apply the scoped native-URL start logic on Scrapy 2.13+."""
+        for request in self.start_requests():
+            yield request
+
+    def scope_thread_request(self, request, response):
+        """Keep thread traversal inside the board that produced the link."""
+        response_meta = response.request.meta if response.request else {}
+        if not self._BOARD_RE.search(response.url) and not response_meta.get(
+            'sehuatang_scope'
+        ):
+            return None
+        match = self._THREAD_PATH_RE.search(request.url)
+        if match:
+            tid, page = match.groups()
+            target_tid = tid
+            request = request.replace(
+                url=response.urljoin(
+                    'forum.php?mod=viewthread&tid={}&page={}'.format(tid, page)
+                )
+            )
+        else:
+            target_tid = self._THREAD_QUERY_RE.search(request.url).group(1)
+
+        source_thread = self._THREAD_QUERY_RE.search(response.url)
+        if source_thread and source_thread.group(1) != target_tid:
+            return None
+        request.meta['sehuatang_scope'] = True
+        return request
 
     def normalize_thread_request(self, request, response):
-        """Use Discuz's native thread URL instead of the blocked rewrite path."""
-        match = self._THREAD_PATH_RE.search(request.url)
-        if not match:
-            return request
-        tid, page = match.groups()
-        return request.replace(
-            url=response.urljoin(
-                'forum.php?mod=viewthread&tid={}&page={}'.format(tid, page)
-            )
-        )
+        """Backward-compatible alias for callers/tests using the old name."""
+        return self.scope_thread_request(request, response)
 
     def parse_start_url(self, response: Response):
         """Pass SeHuaTang's JavaScript confirmation gate once.
