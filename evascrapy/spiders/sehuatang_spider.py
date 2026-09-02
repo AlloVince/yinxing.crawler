@@ -91,6 +91,25 @@ class SehuatangSpider(BaseSpider):
         for request in self.start_requests():
             yield request
 
+    def _parse(self, response: Response, **kwargs):
+        """Retry any SeHuaTang confirmation page before applying the rules."""
+        safe_id = self._SAFE_ID_RE.search(response.text)
+        if safe_id and not response.meta.get('sehuatang_safe_retry'):
+            self.logger.info('Retrying SeHuaTang page with confirmation cookie: %s', response.url)
+            meta = response.meta.copy()
+            meta['sehuatang_safe_retry'] = True
+            return [Request(
+                response.url,
+                callback=self._parse,
+                cookies={'_safe': safe_id.group(1)},
+                dont_filter=True,
+                meta=meta,
+            )]
+
+        if safe_id:
+            self.logger.warning('SeHuaTang confirmation gate still present after cookie retry: %s', response.url)
+        return super()._parse(response, **kwargs)
+
     def scope_thread_request(self, request, response):
         """Keep traversal scoped and restricted to the first thread page."""
         if 'authorid=' in request.url:
