@@ -79,7 +79,8 @@ class SehuatangSpider(BaseSpider):
         documented page transition and leave all other cookies untouched.
         """
         safe_id = self._SAFE_ID_RE.search(response.text)
-        if safe_id and not response.meta.get('sehuatang_safe_retry'):
+        request_meta = response.request.meta if response.request else {}
+        if safe_id and not request_meta.get('sehuatang_safe_retry'):
             self.logger.info('Retrying SeHuaTang entry page with confirmation cookie')
             yield Request(
                 response.url,
