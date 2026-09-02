@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """Public-only SeHuaTang Discuz pages and openly exposed torrent attachments."""
 import math
+import re
 import time
 
+from scrapy import Request
 from scrapy.http import Response
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import Rule
@@ -28,13 +30,67 @@ class SehuatangSpider(BaseSpider):
         ), follow=True),
         Rule(LinkExtractor(
             allow=r'/(?:forum\.php\?mod=viewthread&tid=\d+[^#]*|thread-\d+-\d+-\d+\.html)$'
-        ), follow=True),
+        ), follow=True, process_request='normalize_thread_request'),
         Rule(LinkExtractor(
             allow=r'/forum\.php\?mod=attachment&[^#]*'
         ), follow=False, callback='handle_attachment'),
     )
     deep_rules = rules
-    custom_settings = {'CLOSESPIDER_ITEMCOUNT': 0}
+    custom_settings = {
+        'CLOSESPIDER_ITEMCOUNT': 0,
+        # The site returns HTTP 403 to Scrapy's default user agent after the
+        # entry page.  Match a normal browser request while keeping crawling
+        # rate controlled by the deployment settings.
+        'USER_AGENT': (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+            'AppleWebKit/537.36 (KHTML, like Gecko) '
+            'Chrome/140.0.0.0 Safari/537.36'
+        ),
+        'DEFAULT_REQUEST_HEADERS': {
+            'Accept': (
+                'text/html,application/xhtml+xml,application/xml;q=0.9,'
+                'image/avif,image/webp,*/*;q=0.8'
+            ),
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        },
+    }
+
+    _SAFE_ID_RE = re.compile(r"\bvar\s+safeid\s*=\s*['\"]([^'\"]+)['\"]")
+    _THREAD_PATH_RE = re.compile(r'/thread-(\d+)-(\d+)-\d+\.html$')
+
+    def normalize_thread_request(self, request, response):
+        """Use Discuz's native thread URL instead of the blocked rewrite path."""
+        match = self._THREAD_PATH_RE.search(request.url)
+        if not match:
+            return request
+        tid, page = match.groups()
+        return request.replace(
+            url=response.urljoin(
+                'forum.php?mod=viewthread&tid={}&page={}'.format(tid, page)
+            )
+        )
+
+    def parse_start_url(self, response: Response):
+        """Pass SeHuaTang's JavaScript confirmation gate once.
+
+        The public entry page serves a generated confirmation page before the
+        forum.  Its JavaScript writes ``_safe=<safeid>`` and reloads the same
+        URL.  Scrapy does not run that JavaScript, so reproduce only that
+        documented page transition and leave all other cookies untouched.
+        """
+        safe_id = self._SAFE_ID_RE.search(response.text)
+        if safe_id and not response.meta.get('sehuatang_safe_retry'):
+            self.logger.info('Retrying SeHuaTang entry page with confirmation cookie')
+            yield Request(
+                response.url,
+                cookies={'_safe': safe_id.group(1)},
+                dont_filter=True,
+                meta={'sehuatang_safe_retry': True},
+            )
+            return
+
+        if safe_id:
+            self.logger.warning('SeHuaTang confirmation gate still present after cookie retry')
 
     def handle_attachment(self, response: Response):
         # A login/challenge response is HTML even when the original link was
