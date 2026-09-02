@@ -4,6 +4,9 @@ Spiders based on [EvaScrapy](https://github.com/AlloVince/EvaScrapy). The image
 contains the complete set of spiders synchronized from EvaScrapy's local
 development copies.
 
+The image inherits EvaScrapy's `SPIDER_STATS` lifecycle and 60-second progress
+logs for runtime inspection.
+
 ## nyaa 运行约定
 
 `crawler.18x.yml` 当前只部署 `crawler-nyaa`。nyaa 的详情页会产生 torrent 下载请求，
