@@ -3,6 +3,7 @@
 import math
 import re
 import time
+from urllib.parse import parse_qs, urlsplit
 
 from scrapy import Request
 from scrapy.http import Response
@@ -91,7 +92,7 @@ class SehuatangSpider(BaseSpider):
             yield request
 
     def scope_thread_request(self, request, response):
-        """Keep thread traversal inside the board that produced the link."""
+        """Keep traversal scoped and restricted to the first thread page."""
         if 'authorid=' in request.url:
             return None
         response_meta = response.request.meta if response.request else {}
@@ -102,6 +103,8 @@ class SehuatangSpider(BaseSpider):
         match = self._THREAD_PATH_RE.search(request.url)
         if match:
             tid, page = match.groups()
+            if page != '1':
+                return None
             target_tid = tid
             request = request.replace(
                 url=response.urljoin(
@@ -110,6 +113,9 @@ class SehuatangSpider(BaseSpider):
             )
         else:
             target_tid = self._THREAD_QUERY_RE.search(request.url).group(1)
+            page = parse_qs(urlsplit(request.url).query).get('page', ['1'])[0]
+            if page != '1':
+                return None
 
         source_thread = self._THREAD_QUERY_RE.search(response.url)
         if source_thread and source_thread.group(1) != target_tid:
