@@ -6,4 +6,6 @@ RUN python -c "import pytz; print(pytz.__version__)"
 
 COPY ./evascrapy/spiders /opt/htdocs/evascrapy/evascrapy/spiders
 
-CMD python start.py
+# Deep/one-shot Compose services use the image default. Watch services
+# explicitly override this with `python start.py`.
+CMD python -m scrapy crawl ${APP_SPIDER:-demo}

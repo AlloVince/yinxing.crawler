@@ -42,9 +42,10 @@ with canonical detail deduplication and isolated durable queues. See
 
 ## NAS mode selection
 
-The NAS Compose files accept `APP_RUN_DEEP` from the command line. The default
-(`0`) runs `python start.py` in hourly non-deep mode; `1` runs one explicit
-deep crawl with its isolated JOBDIR. For example:
+The image default is a one-shot Scrapy crawl selected by `APP_SPIDER`; deep
+Compose services only need `APP_RUN_DEEP=1` and do not repeat the crawl
+command. Watch services explicitly override the image command with
+`command: ["python", "start.py"]` and set `APP_RUN_DEEP=0`. For example:
 
 ```bash
 APP_RUN_DEEP=0 docker-compose -f crawler.dmm.yml up -d --force-recreate crawler-dmm
