@@ -23,9 +23,9 @@ development copies.
 - 详情：`https://video.dmm.co.jp/av/content/?id={content_id}`
 - 入口需要年龄确认 Cookie：`age_check_done=1`
 - 搜索页是 Next.js 客户端渲染页面，原始 HTML 没有详情链接；列表数据来自 `https://api.video.dmm.co.jp/graphql`
-- `legacySearchPPV` 可按 `offset` 分页读取内容 ID；当前使用 `floor: AV`、`sort: SALES_RANK_SCORE`
+- `legacySearchPPV` 可按 `offset` 分页读取内容 ID；非 deep 使用 `DELIVERY_START_DATE` 读取最新内容，deep 使用演员目录和分类分片的 `SALES_RANK_SCORE`
 - Spider 先遍历演员目录，再按演员筛选分页请求列表 API；详情请求通过 GraphQL 合并影片信息和第一页评论，原始响应以 JSON 落盘
-- 默认普通抓取使用 `sort: DATE`，只抓列表前 10 页；设置 `APP_RUN_DEEP=1` 时执行演员目录 → 演员列表 → 详情的深度抓取
+- 默认普通抓取只读取最新列表的前 10 页；设置 `APP_RUN_DEEP=1` 时执行演员目录 → 演员列表 → 详情的深度抓取。非 deep 详情响应仍完整保存 `recommendedContents`，但只有启用 `JOBDIR` 才扩展推荐详情请求
 - 详情 URL 不能删除 query；`id` 是定位内容的必需参数
 - GraphQL 查询和字段说明见 [`docs/dmm-graphql.md`](docs/dmm-graphql.md)
 - 列表搜索参数、筛选字段和分片策略见 [`docs/dmm-search-parameters.md`](docs/dmm-search-parameters.md)
@@ -36,3 +36,20 @@ development copies.
 The `dmm` spider uses maker catalogues first and actress catalogues as a supplement,
 with canonical detail deduplication and isolated durable queues. See
 [`docs/dmm-catalog-crawl.md`](docs/dmm-catalog-crawl.md) for boundaries, recovery and validation.
+
+## NAS mode selection
+
+The NAS Compose files accept `APP_RUN_DEEP` from the command line. The default
+(`0`) runs `python start.py` in hourly non-deep mode; `1` runs one explicit
+deep crawl with its isolated JOBDIR. For example:
+
+```bash
+APP_RUN_DEEP=0 docker-compose -f crawler.dmm.yml up -d --force-recreate crawler-dmm
+APP_RUN_DEEP=1 docker-compose -f crawler.dmm.yml up -d --force-recreate crawler-dmm
+APP_RUN_DEEP=0 docker-compose -f crawler.fanza.yml up -d --force-recreate crawler-fanza
+APP_RUN_DEEP=1 docker-compose -f crawler.fanza.yml up -d --force-recreate crawler-fanza
+```
+
+Do not reuse a deep JOBDIR for a non-deep hourly service. DMM writes raw HTML
+and FANZA writes raw JSON to the configured S3/SeaweedFS bucket; neither Spider
+produces torrent files.

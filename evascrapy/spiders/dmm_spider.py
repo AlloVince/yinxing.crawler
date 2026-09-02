@@ -1,9 +1,9 @@
-"""Bounded DVD catalogue crawl; keep RawHtmlItem identities/storage unchanged.
+"""DVD catalogue crawl; keep RawHtmlItem identities/storage unchanged.
 
-Maker catalogues run first (including works without actress metadata); actress
-catalogues and the recent-date catalogue supplement discovery. Never traverse
+Regular runs read the newest date-sorted catalogue and stop around 1,000
+details. Deep runs traverse maker, actress and date catalogues. Never traverse
 facets, sorting permutations, search, recommendations or other DMM services.
-Use a NEW JOBDIR on first upgrade. The strategy marker rejects legacy queues.
+The strategy marker rejects legacy deep queues.
 """
 
 import hashlib
@@ -17,8 +17,14 @@ from urllib.parse import urljoin, urlsplit
 from scrapy import signals
 from scrapy.exceptions import CloseSpider
 from scrapy.http import Request
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders import Rule
 
 from evascrapy.base_spider import BaseSpider
+
+
+def _deep_enabled():
+    return os.getenv('APP_RUN_DEEP', '').strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 class DmmSpider(BaseSpider):
@@ -30,33 +36,24 @@ class DmmSpider(BaseSpider):
     strategy = 'dmm-catalog-v2'
     age_check_cookies: ClassVar = {'age_check_done': '1'}
     start_urls: ClassVar = [
+        origin + prefix + 'list/=/sort=date/',
+    ]
+    deep_start_urls = [
         origin + prefix + 'maker/',
         origin + prefix + 'list/=/sort=date/',
         origin + prefix + 'actress/',
     ]
-    deep_start_urls = start_urls
-    rules = ()
-    deep_rules = ()
-    custom_settings: ClassVar = {
-        'JOBDIR': os.getenv('DMM_JOBDIR', 'jobdir/dmm-catalog-v2'),
-        'CONCURRENT_REQUESTS': 8,
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 8,
-        'DOWNLOAD_DELAY': 0.25,
-        'AUTOTHROTTLE_ENABLED': True,
-        'AUTOTHROTTLE_START_DELAY': 0.5,
-        'AUTOTHROTTLE_MAX_DELAY': 60,
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': 4.0,
-        'DOWNLOAD_TIMEOUT': 30,
-        'RETRY_TIMES': 3,
-        'COOKIES_ENABLED': True,
-        'ROBOTSTXT_OBEY': True,
-        'SCHEDULER_DISK_QUEUE': 'scrapy.squeues.PickleFifoDiskQueue',
-        'SCHEDULER_MEMORY_QUEUE': 'scrapy.squeues.FifoMemoryQueue',
-        'DEPTH_PRIORITY': 0,
-        'DEPTH_LIMIT': 0,
-        'LOG_LEVEL': 'INFO',
-        'TELNETCONSOLE_ENABLED': False,
-    }
+    rules = (
+        Rule(
+            LinkExtractor(allow=(r'/mono/dvd/-/detail/=/cid=[\w-]+/',)),
+            callback='parse_detail',
+            follow=False,
+            process_links='process_detail_links',
+            process_request='process_detail_request',
+        ),
+    )
+    deep_rules = rules
+    regular_max_items = 1000
     detail_pattern = re.compile(r'/mono/dvd/-/detail/=/cid=[\w-]+/', re.ASCII)
     directory_pattern = re.compile(
         r'/mono/dvd/-/(?:maker|actress)/(?:=/keyword=[a-z]+/(?:page=[1-9]\d*/)?)?'
@@ -120,8 +117,10 @@ class DmmSpider(BaseSpider):
         return Request(url, callback=callback, errback=self.request_failed,
                        cookies=self.age_check_cookies, priority=priority, **kwargs)
 
+    def is_deep(self):
+        return _deep_enabled()
+
     async def start(self):
-        # Unlike dont_filter=True, persisted fingerprints prevent re-walking seeds.
         for url in self.start_urls:
             yield self.request_for(url)
 
@@ -132,6 +131,20 @@ class DmmSpider(BaseSpider):
         if '/list/' in response.url:
             return self.parse_list(response)
         return self.parse_directory(response)
+
+    def process_detail_links(self, links):
+        """Let CrawlSpider discover details, while keeping regular runs bounded."""
+        if self.is_deep():
+            return links
+        remaining = self.regular_max_items - self.state.get('regular_items_scheduled', 0)
+        selected = links[:max(0, remaining)]
+        self.state['regular_items_scheduled'] = (
+            self.state.get('regular_items_scheduled', 0) + len(selected)
+        )
+        return selected
+
+    def process_detail_request(self, request):
+        return request.replace(cookies=self.age_check_cookies, errback=self.request_failed)
 
     def links(self, response, selector='a::attr(href)'):
         return sorted({url for href in response.css(selector).getall()
@@ -204,23 +217,39 @@ class DmmSpider(BaseSpider):
         })
         entry.update(advertised=total, last_page=page, last_position=last)
         entry['pages'] += 1
+
+        if not self.is_deep():
+            entry['capped'] = True
+
         entry['references'] += len(details)
         self.crawler.stats.inc_value('dmm/list_pages')
         next_url = self.next_page(response, links)
+        if self.is_deep():
+            selected_details = details
+        else:
+            remaining = self.regular_max_items - self.state.get('regular_items_scheduled', 0)
+            selected_details = details[:max(0, remaining)]
+            self.state['regular_items_scheduled'] = (
+                self.state.get('regular_items_scheduled', 0) + len(selected_details)
+            )
+        for url in selected_details:
+            yield self.request_for(url)
+        if not self.is_deep() and (
+            self.state.get('regular_items_scheduled', 0) >= self.regular_max_items
+        ):
+            next_url = None
         visible_last = max([self.page_number(u) for u in links
                             if self.partition(u) == root] + [page])
-        if page == 1 and total > visible_last * len(details):
+        if self.is_deep() and page == 1 and total > visible_last * len(details):
             entry['capped'] = True
             self.crawler.stats.inc_value('dmm/capped_partitions')
             self.logger.warning('Catalogue capped: %s advertised=%s visible_pages=%s',
                                 root, total, visible_last)
-        for url in details:
-            yield self.request_for(url)
         if next_url:
             yield self.request_for(next_url, cb_kwargs={'previous_signature': signature})
         else:
             entry['finished'] = True
-            if last < total:
+            if self.is_deep() and last < total:
                 entry['capped'] = True
                 self.logger.warning('Catalogue ended before advertised total: %s %s/%s', root, last, total)
                 self.crawler.stats.inc_value('dmm/truncated_partitions')
@@ -233,6 +262,8 @@ class DmmSpider(BaseSpider):
         # HTML canonical often points at video.dmm.co.jp. Keep the DVD URL/CID:
         # using that canonical would change downstream raw-object identities.
         yield self.handle_item(response)
+        if not self.is_deep():
+            return
         links = self.links(response)
         makers = [u for u in links if '/article=maker/' in u and '/page=' not in u]
         for url in makers:
