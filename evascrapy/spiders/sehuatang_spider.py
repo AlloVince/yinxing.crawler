@@ -96,7 +96,11 @@ class SehuatangSpider(BaseSpider):
         safe_id = self._SAFE_ID_RE.search(response.text)
         if safe_id and not response.meta.get('sehuatang_safe_retry'):
             self.logger.info('Retrying SeHuaTang page with confirmation cookie: %s', response.url)
-            meta = response.meta.copy()
+            meta = {
+                key: response.meta[key]
+                for key in ('cookiejar', 'sehuatang_scope')
+                if key in response.meta
+            }
             meta['sehuatang_safe_retry'] = True
             return [Request(
                 response.url,
@@ -170,6 +174,26 @@ class SehuatangSpider(BaseSpider):
             self.logger.warning('SeHuaTang confirmation gate still present after cookie retry')
 
     def handle_attachment(self, response: Response):
+        safe_id = self._SAFE_ID_RE.search(response.text)
+        if safe_id and not response.meta.get('sehuatang_safe_retry'):
+            self.logger.info(
+                'Retrying SeHuaTang attachment with confirmation cookie: %s',
+                response.url,
+            )
+            meta = {
+                key: response.meta[key]
+                for key in ('cookiejar', 'sehuatang_scope')
+                if key in response.meta
+            }
+            meta['sehuatang_safe_retry'] = True
+            return Request(
+                response.url,
+                callback=self.handle_attachment,
+                cookies={'_safe': safe_id.group(1)},
+                dont_filter=True,
+                meta=meta,
+            )
+
         # A login/challenge response is HTML even when the original link was
         # named *.torrent.  Discuz torrent files are bencoded dictionaries;
         # this cheap check prevents those pages becoming false items.
