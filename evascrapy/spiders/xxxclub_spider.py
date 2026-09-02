@@ -32,7 +32,10 @@ class XxxclubSpider(BaseSpider):
         'RETRY_TIMES': 3,
         'TELNETCONSOLE_ENABLED': False,
     }
-    detail_pattern = re.compile(r'/torrents/details/~?\d+$')
+    # Current listing entries use a tilde followed by a negative numeric id
+    # (for example ``/torrents/details/~-734765937293015000``).  The
+    # recommended-torrent links still use positive ids.
+    detail_pattern = re.compile(r'/torrents/details/~?-?\d+$')
     download_pattern = re.compile(r'/torrents/download/[0-9a-f]{40}$')
 
     def parse_start_url(self, response: Response):
