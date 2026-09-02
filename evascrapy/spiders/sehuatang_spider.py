@@ -17,7 +17,7 @@ class SehuatangSpider(BaseSpider):
     name = 'sehuatang'
     version = '1.0.0'
     allowed_domains = ['www.sehuatang.net']
-    board_ids = (2, 36, 37, 103, 107, 160, 104, 38, 151, 152, 39, 148)
+    board_ids = (2, 36, 37, 160, 104, 38, 151, 39)
     start_urls = [
         'https://www.sehuatang.net/forum-{}-1.html'.format(board_id)
         for board_id in board_ids
@@ -28,7 +28,7 @@ class SehuatangSpider(BaseSpider):
     # cookie, invite-code, challenge-solving, or guessed private board URL is
     # used.  Every rule is constrained to the boards below; attachment links
     # are followed only when a scoped public thread exposes them in its HTML.
-    board_pattern = r'(?:2|36|37|103|107|160|104|38|151|152|39|148)'
+    board_pattern = r'(?:2|36|37|160|104|38|151|39)'
     rules = (
         Rule(LinkExtractor(
             allow=(
@@ -69,8 +69,8 @@ class SehuatangSpider(BaseSpider):
     _THREAD_PATH_RE = re.compile(r'/thread-(\d+)-(\d+)-\d+\.html$')
     _THREAD_QUERY_RE = re.compile(r'/forum\.php\?mod=viewthread&tid=(\d+)')
     _BOARD_RE = re.compile(
-        r'/forum-(?:2|36|37|103|107|160|104|38|151|152|39|148)-\d+\.html$'
-        r'|/forum\.php\?mod=forumdisplay&fid=(?:2|36|37|103|107|160|104|38|151|152|39|148)(?:[&#]|$)'
+        r'/forum-(?:2|36|37|160|104|38|151|39)-\d+\.html$'
+        r'|/forum\.php\?mod=forumdisplay&fid=(?:2|36|37|160|104|38|151|39)(?:[&#]|$)'
     )
 
     def start_requests(self):
