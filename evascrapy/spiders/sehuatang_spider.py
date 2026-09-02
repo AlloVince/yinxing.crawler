@@ -17,7 +17,7 @@ from evascrapy.items import TorrentFileItem
 class SehuatangSpider(BaseSpider):
     name = 'sehuatang'
     version = '1.0.0'
-    allowed_domains = ['www.sehuatang.net']
+    allowed_domains = ['www.sehuatang.net', 'xia.djhdhs.us']
     board_ids = (2, 36, 37, 160, 104, 38, 151, 39)
     start_urls = [
         'https://www.sehuatang.net/forum-{}-1.html'.format(board_id)
