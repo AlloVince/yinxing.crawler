@@ -92,6 +92,8 @@ class SehuatangSpider(BaseSpider):
 
     def scope_thread_request(self, request, response):
         """Keep thread traversal inside the board that produced the link."""
+        if 'authorid=' in request.url:
+            return None
         response_meta = response.request.meta if response.request else {}
         if not self._BOARD_RE.search(response.url) and not response_meta.get(
             'sehuatang_scope'
