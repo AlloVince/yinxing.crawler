@@ -174,7 +174,12 @@ class SehuatangSpider(BaseSpider):
             self.logger.warning('SeHuaTang confirmation gate still present after cookie retry')
 
     def handle_attachment(self, response: Response):
-        safe_id = self._SAFE_ID_RE.search(response.text)
+        body = response.body.lstrip()
+        safe_id = None
+        if not body.startswith(b'd'):
+            safe_id = self._SAFE_ID_RE.search(
+                response.body.decode('utf-8', errors='replace')
+            )
         if safe_id and not response.meta.get('sehuatang_safe_retry'):
             self.logger.info(
                 'Retrying SeHuaTang attachment with confirmation cookie: %s',
@@ -197,7 +202,6 @@ class SehuatangSpider(BaseSpider):
         # A login/challenge response is HTML even when the original link was
         # named *.torrent.  Discuz torrent files are bencoded dictionaries;
         # this cheap check prevents those pages becoming false items.
-        body = response.body.lstrip()
         content_type = response.headers.get('Content-Type', b'').lower()
         disposition = response.headers.get('Content-Disposition', b'').lower()
         looks_like_torrent = (
