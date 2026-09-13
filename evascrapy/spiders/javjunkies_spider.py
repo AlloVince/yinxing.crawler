@@ -68,7 +68,7 @@ class JavjunkiesSpider(BaseSpider):
         if not self.settings.getbool('APP_RUN_DEEP'):
             archive_urls = archive_urls[:1]
         for url in archive_urls:
-            yield response.follow(url, callback=self.open_download_gate)
+            yield response.follow(url, callback=self.open_download_gate, priority=300)
 
     def open_download_gate(self, response: Response):
         key_match = self.download_key_pattern.search(response.text)
@@ -101,6 +101,7 @@ class JavjunkiesSpider(BaseSpider):
                 'handle_httpstatus_list': [302],
             },
             dont_filter=True,
+            priority=200,
         )
 
     def parse_jj1(self, response: Response):
@@ -111,7 +112,7 @@ class JavjunkiesSpider(BaseSpider):
                 url,
                 callback=self.handle_torrent,
                 meta={'from_url': response.meta['from_url']},
-                priority=10,
+                priority=100,
             )
 
     def handle_torrent(self, response: Response):
