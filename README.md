@@ -57,3 +57,9 @@ APP_RUN_DEEP=1 docker-compose -f crawler.fanza.yml up -d --force-recreate crawle
 Do not reuse a deep JOBDIR for a non-deep hourly service. DMM writes raw HTML
 and FANZA writes raw JSON to the configured S3/SeaweedFS bucket; neither Spider
 produces torrent files.
+
+## Minnano AV
+
+The `minnano_av` spider crawls the actress directory at `minnano-av.com` and
+writes raw actress HTML through the standard S3 pipeline. NAS runs it as a
+one-shot deep service with the object prefix `raw/minnano_av/full/`.
