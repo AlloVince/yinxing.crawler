@@ -58,6 +58,12 @@ Do not reuse a deep JOBDIR for a non-deep hourly service. DMM writes raw HTML
 and FANZA writes raw JSON to the configured S3/SeaweedFS bucket; neither Spider
 produces torrent files.
 
+## FC2 / MGS
+
+FC2 and MGS are isolated Raw HTML spiders. Their NAS services write only to
+`raw/fc2/full/` and `raw/mgs/full/`, respectively, with separate job and
+dedupe roots. MGS age-verification cookies are supplied by runtime config.
+
 ## Minnano AV
 
 The `minnano_av` spider crawls the actress directory at `minnano-av.com` and
