@@ -25,6 +25,7 @@ class MgsSpider(BaseSpider):
     }
 
     def handle_item(self, response):
+        response.meta['detail_url'] = response.url
         self.logger.info('mgs detail url=%s external_id=%s', response.url, response.url.rstrip('/').rsplit('/', 1)[-1])
         return super().handle_item(response)
 

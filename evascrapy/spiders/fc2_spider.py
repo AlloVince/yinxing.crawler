@@ -26,5 +26,6 @@ class Fc2Spider(BaseSpider):
 
     def handle_item(self, response):
         external_id = urlsplit(response.url).path.rstrip('/').rsplit('/', 1)[-1]
+        response.meta['detail_url'] = response.url
         self.logger.info('fc2 detail url=%s external_id=%s', response.url, external_id)
         return super().handle_item(response)
